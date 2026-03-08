@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  CREDIT_CARD
+  LINE_OF_CREDIT
+  CASH
+  INVESTMENT
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Account {
+  id          String      @id @default(cuid())
+  name        String
+  type        AccountType
+  institution String?
+  currency    String      @default("USD")
+  last4       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@index([type])
+}
+
+model Category {
+  id       String          @id @default(cuid())
+  name     String
+  color    String
+  type     TransactionType
+  parentId String?
+  parent   Category?       @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[]      @relation("CategoryHierarchy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@index([type])
+  @@index([parentId])
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  date        DateTime
+  description String
+  amountCents Int
+  type        TransactionType
+
+  accountId  String
+  account    Account  @relation(fields: [accountId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([type])
+  @@index([date, type])
+}
