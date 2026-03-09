@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { format } from "date-fns";
-import { formatCents, formatAccountType } from "@/lib/format";
+import { Pencil, Trash2 } from "lucide-react";
+import { formatCents, formatAccountType, formatUTCDate } from "@/lib/format";
 import { deleteTransaction } from "@/lib/transactions/actions";
 import { TransactionFormModal } from "./transaction-form-modal";
+import { BulkEditModal } from "./bulk-edit-modal";
 import type { Account, Category, Transaction } from "@prisma/client";
 
 type TransactionWithRelations = Transaction & {
@@ -45,6 +46,9 @@ export function TransactionTable({
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isPendingDelete, startDeleteTransition] = useTransition();
 
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
+
   function toggleSort(column: SortableColumn) {
     const colKey = column === "amount" ? "amount" : column;
     const isCurrentAsc = currentSort === `${colKey}_asc`;
@@ -78,6 +82,35 @@ export function TransactionTable({
     });
   }
 
+  const allSelected =
+    transactions.length > 0 &&
+    transactions.every((t) => selectedIds.has(t.id));
+
+  function toggleAll() {
+    if (allSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        transactions.forEach((t) => next.delete(t.id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        transactions.forEach((t) => next.add(t.id));
+        return next;
+      });
+    }
+  }
+
+  function toggleRow(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
   if (transactions.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-surface px-6 py-16 text-center animate-fade-in">
@@ -103,11 +136,40 @@ export function TransactionTable({
         </div>
       ) : null}
 
+      {selectedIds.size >= 2 && (
+        <div className="mb-2 flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm">
+          <span className="text-text-secondary font-medium">
+            {selectedIds.size} rows selected
+          </span>
+          <button
+            onClick={() => setBulkEditOpen(true)}
+            className="rounded-md bg-accent px-3 py-1 text-xs font-medium text-white hover:bg-accent/90 transition-colors"
+          >
+            Edit selected
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="rounded-md px-3 py-1 text-xs font-medium text-text-secondary hover:bg-surface-hover transition-colors"
+          >
+            Clear selection
+          </button>
+        </div>
+      )}
+
       <div className="rounded-xl border border-border bg-surface overflow-hidden shadow-sm animate-fade-in-up">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[680px] text-sm">
             <thead>
               <tr className="border-b border-border-light bg-surface-hover/60">
+                <th className="px-4 py-3 w-8">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    className="rounded border-border"
+                    aria-label="Select all"
+                  />
+                </th>
                 <th
                   className="px-4 py-3 text-left font-medium text-text-secondary cursor-pointer select-none hover:text-foreground transition-colors"
                   onClick={() => toggleSort("date")}
@@ -132,7 +194,7 @@ export function TransactionTable({
                 >
                   Amount{sortIndicator("amount")}
                 </th>
-                <th className="px-4 py-3 text-right font-medium text-text-secondary w-28">
+                <th className="px-4 py-3 text-right font-medium text-text-secondary w-24">
                   Actions
                 </th>
               </tr>
@@ -140,8 +202,17 @@ export function TransactionTable({
             <tbody className="divide-y divide-border-light">
               {transactions.map((t, i) => (
                 <tr key={t.id} className={`hover:bg-surface-hover transition-colors animate-fade-in-up stagger-${Math.min(i + 1, 10)}`}>
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(t.id)}
+                      onChange={() => toggleRow(t.id)}
+                      className="rounded border-border"
+                      aria-label={`Select ${t.description}`}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-foreground/70 tabular-nums whitespace-nowrap">
-                    {format(new Date(t.date), "MMM d, yyyy")}
+                    {formatUTCDate(t.date, "MMM d, yyyy")}
                   </td>
                   <td className="px-4 py-3 text-foreground">{t.description}</td>
                   <td className="px-4 py-3 text-text-secondary whitespace-nowrap">
@@ -188,15 +259,19 @@ export function TransactionTable({
                       <span className="inline-flex items-center gap-1">
                         <button
                           onClick={() => setEditingTransaction(t)}
-                          className="rounded-md px-2 py-1 text-xs font-medium text-text-secondary hover:text-foreground hover:bg-surface-hover transition-colors"
+                          aria-label="Edit"
+                          title="Edit"
+                          className="rounded-md p-1.5 text-text-secondary hover:text-foreground hover:bg-surface-hover transition-colors"
                         >
-                          Edit
+                          <Pencil size={14} />
                         </button>
                         <button
                           onClick={() => setDeletingId(t.id)}
-                          className="rounded-md px-2 py-1 text-xs font-medium text-text-tertiary hover:text-red-600 hover:bg-red-50 transition-colors"
+                          aria-label="Delete"
+                          title="Delete"
+                          className="rounded-md p-1.5 text-text-tertiary hover:text-red-600 hover:bg-red-50 transition-colors"
                         >
-                          Delete
+                          <Trash2 size={14} />
                         </button>
                       </span>
                     )}
@@ -240,6 +315,19 @@ export function TransactionTable({
           transaction={editingTransaction}
           open={true}
           onClose={() => setEditingTransaction(null)}
+        />
+      )}
+
+      {bulkEditOpen && (
+        <BulkEditModal
+          transactions={transactions.filter((t) => selectedIds.has(t.id))}
+          accounts={accounts}
+          categories={categories}
+          open={bulkEditOpen}
+          onClose={() => {
+            setBulkEditOpen(false);
+            setSelectedIds(new Set());
+          }}
         />
       )}
     </>

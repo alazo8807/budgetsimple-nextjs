@@ -1,5 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
+import { FilterPanel } from "./filter-panel";
+import { MonthPicker } from "@/app/_components/month-picker";
 import { TransactionsToolbar } from "./transactions-toolbar";
 import { TransactionFormModal } from "./transaction-form-modal";
 import { TransactionTable } from "./transaction-table";
@@ -30,21 +33,31 @@ export function TransactionsClient({
   totalPages,
 }: TransactionsClientProps) {
   return (
-    <>
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <TransactionsToolbar accounts={accounts} categories={categories} />
-        <TransactionFormModal accounts={accounts} categories={categories} />
-      </div>
+    // flex-col on mobile (filter stacks above table), flex-row on desktop (sidebar + main)
+    <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
+      {/* FilterPanel: renders mobile toggle on small screens, sidebar on md+ */}
+      <FilterPanel accounts={accounts} categories={categories} />
 
-      <TransactionTable
-        transactions={transactions}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        totalPages={totalPages}
-        accounts={accounts}
-        categories={categories}
-      />
-    </>
+      {/* Main content */}
+      <div className="min-w-0 flex-1 space-y-4">
+        <Suspense fallback={null}>
+          <MonthPicker />
+        </Suspense>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TransactionsToolbar />
+          <TransactionFormModal accounts={accounts} categories={categories} />
+        </div>
+
+        <TransactionTable
+          transactions={transactions}
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          accounts={accounts}
+          categories={categories}
+        />
+      </div>
+    </div>
   );
 }

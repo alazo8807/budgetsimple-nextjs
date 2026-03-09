@@ -28,12 +28,14 @@ function buildWhere(filters: TransactionFilter): Prisma.TransactionWhereInput {
     where.type = filters.type;
   }
 
-  if (filters.accountId) {
-    where.accountId = filters.accountId;
+  if (filters.accountIds) {
+    const ids = filters.accountIds.split(",").filter(Boolean);
+    if (ids.length > 0) where.accountId = { in: ids };
   }
 
-  if (filters.categoryId) {
-    where.categoryId = filters.categoryId;
+  if (filters.categoryIds) {
+    const ids = filters.categoryIds.split(",").filter(Boolean);
+    if (ids.length > 0) where.categoryId = { in: ids };
   }
 
   if (filters.search) {

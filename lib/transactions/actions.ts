@@ -102,3 +102,36 @@ export async function deleteTransaction(id: string): Promise<ActionResult> {
     return { success: false, error: "Failed to delete transaction" };
   }
 }
+
+export async function bulkUpdateTransactions(
+  ids: string[],
+  updates: {
+    description?: string;
+    amountCents?: number;
+    type?: "EXPENSE" | "INCOME";
+    accountId?: string;
+    categoryId?: string;
+    date?: string;
+  }
+): Promise<ActionResult> {
+  try {
+    const data: Record<string, unknown> = {};
+    if (updates.description !== undefined) data.description = updates.description;
+    if (updates.amountCents !== undefined) data.amountCents = updates.amountCents;
+    if (updates.type !== undefined) data.type = updates.type;
+    if (updates.accountId !== undefined) data.accountId = updates.accountId;
+    if (updates.categoryId !== undefined) data.categoryId = updates.categoryId;
+    if (updates.date !== undefined) data.date = new Date(updates.date);
+
+    await prisma.transaction.updateMany({
+      where: { id: { in: ids } },
+      data,
+    });
+
+    revalidatePath("/transactions");
+    return { success: true };
+  } catch (e) {
+    console.error("Failed to bulk update transactions:", e);
+    return { success: false, error: "Failed to bulk update transactions" };
+  }
+}

@@ -8,7 +8,7 @@ import {
   updateTransaction,
   type ActionResult,
 } from "@/lib/transactions/actions";
-import { parseDollarsTocents, formatAccountType } from "@/lib/format";
+import { parseDollarsTocents, formatAccountType, formatUTCDate } from "@/lib/format";
 import type { Account, Category, Transaction } from "@prisma/client";
 
 interface TransactionFormModalProps {
@@ -288,7 +288,7 @@ export function TransactionFormModal({
                 required
                 defaultValue={
                   transaction
-                    ? format(new Date(transaction.date), "yyyy-MM-dd")
+                    ? formatUTCDate(transaction.date, "yyyy-MM-dd")
                     : format(new Date(), "yyyy-MM-dd")
                 }
                 className="w-full rounded-lg border border-border px-3 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"

@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import { getTransactions, getCategories } from "@/lib/transactions/queries";
 import { getAccounts } from "@/lib/accounts/queries";
 import { transactionFilterSchema } from "@/lib/validation/transaction";
-import { MonthPicker } from "./_components/month-picker";
 import { TransactionsClient } from "./_components/transactions-client";
 
 interface PageProps {
@@ -61,10 +60,6 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
               </Link>
             </div>
           ) : null}
-
-          <Suspense fallback={null}>
-            <MonthPicker />
-          </Suspense>
 
           <Suspense fallback={null}>
             <TransactionsClient

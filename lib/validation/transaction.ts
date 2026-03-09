@@ -25,8 +25,8 @@ export const transactionFilterSchema = z.object({
     .regex(/^\d{4}-\d{2}$/, "Month must be YYYY-MM format")
     .optional(),
   type: transactionTypeSchema.optional(),
-  accountId: z.string().optional(),
-  categoryId: z.string().optional(),
+  accountIds: z.string().optional(), // comma-separated account IDs
+  categoryIds: z.string().optional(), // comma-separated category IDs
   search: z.string().optional(),
   sort: z.string().optional(),
   page: z.coerce.number().int().min(1).optional().default(1),
