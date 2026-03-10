@@ -23,6 +23,20 @@ No test suite is configured.
 
 **No authentication** — single-user personal finance app.
 
+## Shared Agent Skills
+
+Shared skills live in `.agents/skills`.
+
+When a task matches one of these domains, read the corresponding `SKILL.md` before proceeding:
+
+- React/Next.js performance: `.agents/skills/vercel-react-best-practices/SKILL.md`
+- PostgreSQL/database work: `.agents/skills/postgres/SKILL.md`
+- GitHub CLI tasks: `.agents/skills/gh-cli/SKILL.md`
+- Frontend/UI work: `.agents/skills/frontend-design/SKILL.md`
+- UI/UX reviews: `.agents/skills/web-design-guidelines/SKILL.md`
+
+Cursor compatibility is maintained by keeping `.cursor/skills` pointed at `.agents/skills`.
+
 ### Directory conventions
 
 - `app/` — Pages and route-scoped components (co-located in `_components/` subdirectories)

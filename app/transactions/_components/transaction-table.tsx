@@ -1,13 +1,21 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
 import { formatCents, formatAccountType, formatUTCDate } from "@/lib/format";
 import { deleteTransaction } from "@/lib/transactions/actions";
-import { TransactionFormModal } from "./transaction-form-modal";
-import { BulkEditModal } from "./bulk-edit-modal";
 import type { Account, Category, Transaction } from "@prisma/client";
+
+const TransactionFormModal = dynamic(
+  () => import("./transaction-form-modal").then((m) => m.TransactionFormModal),
+  { ssr: false }
+);
+const BulkEditModal = dynamic(
+  () => import("./bulk-edit-modal").then((m) => m.BulkEditModal),
+  { ssr: false }
+);
 
 type TransactionWithRelations = Transaction & {
   account: Account;

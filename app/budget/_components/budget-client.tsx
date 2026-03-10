@@ -1,13 +1,18 @@
 "use client";
 
 import { Suspense, useState, useTransition } from "react";
+import dynamic from "next/dynamic";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { MonthPicker } from "@/app/_components/month-picker";
-import { BudgetFormModal } from "./budget-form-modal";
 import { deleteBudget } from "@/lib/budgets/actions";
 import { formatCents, getCurrentMonth } from "@/lib/format";
 import type { Category } from "@prisma/client";
 import type { BudgetWithCategory } from "@/lib/budgets/queries";
+
+const BudgetFormModal = dynamic(
+  () => import("./budget-form-modal").then((m) => m.BudgetFormModal),
+  { ssr: false }
+);
 
 interface BudgetClientProps {
   month: string;
