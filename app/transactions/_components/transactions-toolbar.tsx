@@ -15,7 +15,7 @@ export function TransactionsToolbar() {
       if (value) params.set(key, value);
       else params.delete(key);
       params.delete("page");
-      startTransition(() => router.push(`${pathname}?${params.toString()}`));
+      startTransition(() => router.push(`${pathname}?${params.toString()}`, { scroll: false }));
     },
     [router, pathname, searchParams]
   );

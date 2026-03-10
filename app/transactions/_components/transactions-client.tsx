@@ -6,6 +6,7 @@ import { MonthPicker } from "@/app/_components/month-picker";
 import { TransactionsToolbar } from "./transactions-toolbar";
 import { TransactionFormModal } from "./transaction-form-modal";
 import { TransactionTable } from "./transaction-table";
+import { TransactionSummary } from "./transaction-summary";
 import type { Account, Category, Transaction } from "@prisma/client";
 
 type TransactionWithRelations = Transaction & {
@@ -21,6 +22,7 @@ interface TransactionsClientProps {
   page: number;
   pageSize: number;
   totalPages: number;
+  summary: { incomeCents: number; expensesCents: number; balanceCents: number };
 }
 
 export function TransactionsClient({
@@ -31,6 +33,7 @@ export function TransactionsClient({
   page,
   pageSize,
   totalPages,
+  summary,
 }: TransactionsClientProps) {
   return (
     // flex-col on mobile (filter stacks above table), flex-row on desktop (sidebar + main)
@@ -43,6 +46,7 @@ export function TransactionsClient({
         <Suspense fallback={null}>
           <MonthPicker />
         </Suspense>
+        <TransactionSummary summary={summary} />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <TransactionsToolbar />
           <TransactionFormModal accounts={accounts} categories={categories} />

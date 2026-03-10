@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { getTransactions, getCategories } from "@/lib/transactions/queries";
+import { getTransactions, getCategories, getTransactionSummary } from "@/lib/transactions/queries";
 import { getAccounts } from "@/lib/accounts/queries";
 import { transactionFilterSchema } from "@/lib/validation/transaction";
 import { TransactionsClient } from "./_components/transactions-client";
@@ -25,10 +25,11 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
 
   const filters = transactionFilterSchema.parse(flat);
 
-  const [result, accounts, categories] = await Promise.all([
+  const [result, accounts, categories, summary] = await Promise.all([
     getTransactions(filters),
     getAccounts(),
     getCategories(),
+    getTransactionSummary(filters),
   ]);
 
   return (
@@ -70,6 +71,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
               page={result.page}
               pageSize={result.pageSize}
               totalPages={result.totalPages}
+              summary={summary}
             />
           </Suspense>
         </div>

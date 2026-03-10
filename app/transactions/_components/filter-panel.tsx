@@ -27,7 +27,7 @@ function useFilterParams() {
         else p.set(key, value);
       }
       p.delete("page");
-      startTransition(() => router.push(`${pathname}?${p.toString()}`));
+      startTransition(() => router.push(`${pathname}?${p.toString()}`, { scroll: false }));
     },
     [router, pathname, searchParams]
   );
@@ -42,7 +42,7 @@ function useFilterParams() {
       if (next.length) p.set(key, next.join(","));
       else p.delete(key);
       p.delete("page");
-      startTransition(() => router.push(`${pathname}?${p.toString()}`));
+      startTransition(() => router.push(`${pathname}?${p.toString()}`, { scroll: false }));
     },
     [router, pathname, searchParams]
   );
@@ -116,7 +116,7 @@ function FilterPanelContent({
     if (next.length) p.set("categoryIds", next.join(","));
     else p.delete("categoryIds");
     p.delete("page");
-    startTransition(() => router.push(`${pathname}?${p.toString()}`));
+    startTransition(() => router.push(`${pathname}?${p.toString()}`, { scroll: false }));
   }
 
   return (

@@ -78,6 +78,21 @@ export const getTransactions = cache(async function getTransactions(filters: Tra
   };
 });
 
+export const getTransactionSummary = cache(async function getTransactionSummary(
+  filters: TransactionFilter
+) {
+  const where = buildWhere({ ...filters, type: undefined });
+
+  const [income, expenses] = await Promise.all([
+    prisma.transaction.aggregate({ where: { ...where, type: "INCOME" }, _sum: { amountCents: true } }),
+    prisma.transaction.aggregate({ where: { ...where, type: "EXPENSE" }, _sum: { amountCents: true } }),
+  ]);
+
+  const incomeCents = income._sum.amountCents ?? 0;
+  const expensesCents = expenses._sum.amountCents ?? 0;
+  return { incomeCents, expensesCents, balanceCents: incomeCents - expensesCents };
+});
+
 export const getCategories = cache(async function getCategories(type?: "INCOME" | "EXPENSE") {
   return prisma.category.findMany({
     where: type ? { type } : undefined,

@@ -81,7 +81,7 @@ export function BudgetFormModal({
     <dialog
       ref={dialogCallbackRef}
       onClose={handleClose}
-      className="rounded-2xl border border-border p-0 shadow-2xl backdrop:bg-black/40 backdrop:backdrop-blur-sm w-full max-w-md animate-fade-in-up"
+      className="rounded-2xl border border-border p-0 shadow-2xl backdrop:bg-black/40 backdrop:backdrop-blur-sm w-full max-w-md animate-fade-in-up m-auto"
     >
       <div className="p-6">
         <div className="flex items-start justify-between mb-1">
